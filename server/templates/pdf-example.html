@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF模板示例</title>
+    <style>
+        /* 简化样式用于示例 */
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 { color: #333; }
+        h2 { color: #555; }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .note {
+            background: #e8f4fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>PDF生成模板使用说明</h1>
+    
+    <div class="note">
+        <strong>模板位置：</strong> ~/my-blog/server/templates/pdf-template.html
+        <br><strong>输出路径：</strong> ~/my-blog/server/templates/pdf-template.html
+    </div>
+    
+    <h2>模板特点</h2>
+    <ul>
+        <li><strong>极客风格设计：</strong> 基于博客的深色主题，保持一致的视觉风格</li>
+        <li><strong>代码高亮支持：</strong> 预定义的代码高亮样式，支持多种编程语言</li>
+        <li><strong>图片适配优化：</strong> 自动调整图片大小，保持清晰度</li>
+        <li><strong>中文排版优化：</strong> 使用Noto Sans SC字体，优化中文阅读体验</li>
+        <li><strong>打印友好：</strong> 专门的打印样式，确保PDF输出质量</li>
+        <li><strong>响应式设计：</strong> 适配不同尺寸的屏幕和纸张</li>
+    </ul>
+    
+    <h2>模板变量</h2>
+    <p>模板使用Handlebars风格的变量，需要在服务端进行替换：</p>
+    
+    <pre><code>// 示例变量对象
+const templateData = {
+    title: "文章标题",
+    author: "作者名",
+    date: "2024-01-01",
+    category: "技术文章",
+    views: "1234",
+    content: "&lt;p&gt;文章HTML内容&lt;/p&gt;",
+    tags: ["JavaScript", "Node.js", "PDF"],
+    url: "https://blog.example.com/article/123",
+    generatedDate: "2024-01-01 12:00:00"
+};</code></pre>
+    
+    <h2>使用示例（Node.js）</h2>
+    <pre><code>const fs = require('fs');
+const path = require('path');
+
+// 读取模板
+const templatePath = path.join(__dirname, 'templates', 'pdf-template.html');
+let template = fs.readFileSync(templatePath, 'utf8');
+
+// 准备数据
+const data = {
+    title: "深入理解Node.js事件循环",
+    author: "极客小明",
+    date: "2024-04-05",
+    category: "Node.js",
+    views: "2567",
+    content: "&lt;h2&gt;什么是事件循环&lt;/h2&gt;&lt;p&gt;事件循环是Node.js的核心机制...&lt;/p&gt;",
+    tags: ["Node.js", "JavaScript", "异步编程"],
+    url: "https://geekblog.com/articles/nodejs-event-loop",
+    generatedDate: new Date().toLocaleString('zh-CN')
+};
+
+// 简单变量替换（实际应使用模板引擎如Handlebars）
+Object.keys(data).forEach(key => {
+    const placeholder = `{{${key}}}`;
+    const value = Array.isArray(data[key]) ? 
+        data[key].map(tag => `&lt;span class=\"tag\"&gt;${tag}&lt;/span&gt;`).join('') :
+        data[key];
+    template = template.replace(new RegExp(placeholder, 'g'), value);
+});
+
+// 保存生成的HTML
+const outputPath = path.join(__dirname, 'generated', 'article-pdf.html');
+fs.writeFileSync(outputPath, template);
+
+console.log('PDF模板生成完成！');</code></pre>
+    
+    <h2>与现有样式的集成</h2>
+    <p>模板已经集成了博客的主要样式变量：</p>
+    <ul>
+        <li>颜色方案：深色主题（--bg-primary, --bg-secondary等）</li>
+        <li>字体：Fira Code + JetBrains Mono + Noto Sans SC</li>
+        <li>代码样式：与博客一致的代码高亮</li>
+        <li>间距和排版：保持一致的阅读体验</li>
+    </ul>
+    
+    <h2>PDF生成建议</h2>
+    <ol>
+        <li><strong>使用puppeteer或类似工具</strong>将HTML转换为PDF</li>
+        <li><strong>设置合适的页面尺寸</strong>（默认为A4）</li>
+        <li><strong>启用打印样式</strong>以获得最佳打印效果</li>
+        <li><strong>处理图片路径</strong>确保PDF中能正确显示图片</li>
+        <li><strong>添加页眉页脚</strong>（模板已包含基本页脚）</li>
+    </ol>
+    
+    <div class="note">
+        <strong>注意：</strong> 实际使用时，建议使用模板引擎（如Handlebars、EJS）来处理模板变量替换，而不是简单的字符串替换。
+    </div>
+    
+    <h2>模板结构预览</h2>
+    <pre><code>pdf-template.html
+├── 头部 (Head)
+│   ├── 字体引入 (Google Fonts)
+│   ├── 核心样式 (极客风格)
+│   └── 打印优化样式
+├── 主体 (Body)
+│   ├── 页眉 (博客标题)
+│   ├── 文章元信息 (作者、日期等)
+│   ├── 文章标题
+│   ├── 文章内容容器 ({{content}})
+│   ├── 标签区域 ({{tags}})
+│   └── 页脚 (版权信息、二维码占位)
+└── 脚本 (可选代码高亮)</code></pre>
+</body>
+</html>

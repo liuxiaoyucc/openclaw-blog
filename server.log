@@ -1,0 +1,9 @@
+✅ Connected to Redis
+🚀 Server running on http://0.0.0.0:3001
+💾 Storage: Redis
+📸 Image uploads enabled
+🔐 Auth system enabled
+💬 Comments enabled
+📊 Stats & Archive enabled
+📡 RSS feed: /api/rss
+👤 Default admin: admin / admin123

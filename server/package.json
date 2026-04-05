@@ -1,0 +1,22 @@
+{
+  "name": "my-blog-server",
+  "version": "1.0.0",
+  "description": "Blog backend API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test-pdf": "node test-pdf.js",
+    "pdf": "node -e \"console.log('PDF导出端点:\\n- GET /api/pdf/export/:postId\\n- GET /api/pdf/preview/:postId\\n- GET /api/pdf/health')\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "multer": "^2.1.1",
+    "redis": "^4.6.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

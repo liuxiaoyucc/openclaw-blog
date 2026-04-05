@@ -1,0 +1,349 @@
+/* Markdown Editor Styles */
+.markdown-editor {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Toolbar */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.toolbar-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.toolbar-btn.upload-btn {
+  position: relative;
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.toolbar-btn.upload-btn:hover {
+  background: rgba(126, 231, 135, 0.1);
+  box-shadow: var(--glow-green);
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-color);
+  margin: 0 0.25rem;
+}
+
+.toolbar-tabs {
+  display: flex;
+  margin-left: auto;
+  gap: 0.25rem;
+}
+
+.tab-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.4rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--bg-primary);
+}
+
+/* Editor Body */
+.editor-body {
+  min-height: 400px;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.editor-textarea-wrapper {
+  position: relative;
+  height: 100%;
+  min-height: 400px;
+}
+
+.editor-textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  padding: 1.5rem;
+  background: var(--bg-primary);
+  border: none;
+  color: var(--text-primary);
+  font-family: 'Fira Code', 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  resize: vertical;
+  outline: none;
+  tab-size: 2;
+}
+
+.editor-textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.drop-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(121, 192, 255, 0.1);
+  border: 2px dashed var(--accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.editor-textarea-wrapper:hover .drop-overlay,
+.editor-textarea-wrapper.drag-over .drop-overlay {
+  opacity: 1;
+}
+
+.drop-overlay span {
+  color: var(--accent-blue);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+/* Preview */
+.editor-preview {
+  height: 100%;
+  min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: var(--bg-primary);
+}
+
+.preview-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+}
+
+/* Markdown Body Styles */
+.markdown-body {
+  color: var(--text-primary);
+  line-height: 1.8;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  color: var(--accent-blue);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.markdown-body h1 {
+  font-size: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.markdown-body h2 {
+  font-size: 1.5rem;
+}
+
+.markdown-body h3 {
+  font-size: 1.25rem;
+}
+
+.markdown-body p {
+  margin-bottom: 1rem;
+}
+
+.markdown-body a {
+  color: var(--accent-green);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent-green);
+}
+
+.markdown-body a:hover {
+  border-bottom-style: solid;
+}
+
+.markdown-body code {
+  background: var(--bg-tertiary);
+  color: var(--accent-orange);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.markdown-body pre {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdown-body pre code {
+  background: transparent;
+  color: var(--text-primary);
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid var(--accent-purple);
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.markdown-body li {
+  margin: 0.5rem 0;
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 2rem 0;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--border-color);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.markdown-body th {
+  background: var(--bg-tertiary);
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.markdown-body tr:nth-child(even) {
+  background: var(--bg-tertiary);
+}
+
+/* Images */
+.markdown-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin: 1rem 0;
+}
+
+/* Editor Footer */
+.editor-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+  font-size: 0.8rem;
+}
+
+.footer-hint {
+  color: var(--text-secondary);
+}
+
+.char-count {
+  color: var(--text-secondary);
+  font-family: 'Fira Code', monospace;
+}
+
+/* Syntax Highlighter Override */
+.markdown-body pre > div {
+  margin: 0 !important;
+  border-radius: 4px !important;
+  background: var(--bg-secondary) !important;
+}
+
+/* Checkbox lists */
+.markdown-body input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--accent-green);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .editor-toolbar {
+    padding: 0.5rem;
+  }
+  
+  .toolbar-btn {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.8rem;
+    min-width: 28px;
+  }
+  
+  .editor-textarea,
+  .editor-preview {
+    padding: 1rem;
+    min-height: 300px;
+  }
+}

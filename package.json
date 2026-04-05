@@ -1,0 +1,14 @@
+{
+  "name": "my-blog",
+  "version": "1.0.0",
+  "description": "Personal blog with React + Node.js + Redis",
+  "scripts": {
+    "dev": "./start.sh dev",
+    "build": "./start.sh build",
+    "server": "cd server && npm start",
+    "client": "cd client && npm run dev"
+  },
+  "keywords": ["blog", "react", "nodejs", "redis"],
+  "author": "",
+  "license": "ISC"
+}

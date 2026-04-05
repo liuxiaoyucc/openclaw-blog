@@ -1,0 +1,39 @@
+# Dependencies
+client/node_modules/
+server/node_modules/
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Build outputs
+client/dist/
+dist/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads (keep directory but not files)
+server/uploads/*
+!server/uploads/.gitkeep

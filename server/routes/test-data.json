@@ -1,0 +1,27 @@
+{
+  "posts": [
+    {
+      "id": "test-post-1",
+      "title": "测试文章：Node.js PDF导出功能修复",
+      "author": "极客开发者",
+      "createdAt": "2026-04-05T03:33:43.908Z",
+      "content": "\n# Node.js PDF导出功能修复\n\n本文介绍如何在WSL环境中修复Node.js应用的PDF导出功能。\n\n## 问题描述\n\n原PDF导出功能使用`puppeteer-core`，在WSL环境中需要系统中已安装Chrome/Chromium。但在WSL环境中，Chrome通常未安装，导致PDF导出失败。\n\n## 解决方案\n\n### 1. 多方案PDF生成策略\n- **首选方案**: 自动检测并安装Chrome\n- **备选方案**: 使用html-pdf作为降级方案\n- **环境变量**: 支持灵活配置\n\n### 2. 实现细节\n\n```javascript\n// 智能选择PDF生成方法\nasync function generatePDF(htmlContent, post) {\n  const method = PDF_CONFIG.preferredMethod;\n  \n  if (method === 'puppeteer') {\n    try {\n      return await generatePDFWithPuppeteer(htmlContent, post);\n    } catch (err) {\n      console.warn('puppeteer失败，尝试使用html-pdf:', err.message);\n      return await generatePDFWithHtmlPdf(htmlContent, post);\n    }\n  } else if (method === 'html-pdf') {\n    try {\n      return await generatePDFWithHtmlPdf(htmlContent, post);\n    } catch (err) {\n      console.warn('html-pdf失败，尝试使用puppeteer:', err.message);\n      return await generatePDFWithPuppeteer(htmlContent, post);\n    }\n  } else { // auto\n    try {\n      return await generatePDFWithPuppeteer(htmlContent, post);\n    } catch (err) {\n      console.warn('自动模式：puppeteer失败，使用html-pdf:', err.message);\n      return await generatePDFWithHtmlPdf(htmlContent, post);\n    }\n  }\n}\n```\n\n## 测试结果\n\n修复后的功能支持：\n\n1. ✅ WSL/Linux环境\n2. ✅ 自动降级机制\n3. ✅ 详细的错误处理\n4. ✅ 环境变量配置\n5. ✅ 保持原有API接口\n\n## 使用方法\n\n```bash\n# 设置环境变量\nexport PDF_GENERATION_METHOD=auto\nexport PDF_LOG_LEVEL=debug\n\n# 启动服务\nnpm start\n```\n\n## 总结\n\n通过实现多方案PDF生成策略，我们成功解决了WSL环境中Chrome缺失的问题，同时保持了系统的稳定性和兼容性。\n\n> **提示**: 在生产环境中，建议预先安装Chrome以获得更好的PDF生成质量。\n      ",
+      "views": 100,
+      "likes": 25,
+      "tags": [
+        "Node.js",
+        "PDF",
+        "WSL",
+        "修复"
+      ],
+      "categoryId": "tech"
+    }
+  ],
+  "categories": [
+    {
+      "id": "tech",
+      "name": "技术文章",
+      "description": "技术相关文章"
+    }
+  ]
+}
