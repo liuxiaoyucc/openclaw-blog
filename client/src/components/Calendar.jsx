@@ -1,40 +1,28 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
-function Calendar({ onDateClick }) {
+function Calendar({ onDateClick, archiveData }) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [postDates, setPostDates] = useState(new Set()) // { '2026-04-05': true }
 
+  // 监听 archiveData 变化，根据每篇文章的 createdAt 精确标记日期
   useEffect(() => {
-    fetchPostDates()
-  }, [])
-
-  // 获取有文章的日期集合
-  const fetchPostDates = async () => {
-    try {
-      const res = await axios.get('/api/archive')
-      const data = res.data
-      const dates = new Set()
-
-      Object.keys(data).forEach(year => {
-        Object.keys(data[year]).forEach(month => {
-          // 该月有文章，该月所有天都标记（按任务要求）
-          const y = parseInt(year)
-          const m = parseInt(month)
-          const daysInMonth = new Date(y, m, 0).getDate()
-          for (let d = 1; d <= daysInMonth; d++) {
-            dates.add(`${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`)
-          }
+    if (!archiveData || Object.keys(archiveData).length === 0) return
+    
+    const dates = new Set()
+    Object.keys(archiveData).forEach(year => {
+      Object.keys(archiveData[year]).forEach(month => {
+        // 遍历该月的每篇文章，提取具体日期
+        archiveData[year][month].forEach(post => {
+          const date = new Date(post.createdAt)
+          const day = date.getDate()
+          dates.add(`${year}-${month}-${String(day).padStart(2, '0')}`)
         })
       })
-
-      setPostDates(dates)
-    } catch (err) {
-      console.error('Failed to fetch post dates:', err)
-    }
-  }
+    })
+    setPostDates(dates)
+  }, [archiveData])
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth() // 0-indexed

@@ -65,6 +65,140 @@ async function connectRedis() {
   }
 }
 
+// ==================== CACHE MANAGER ====================
+
+/**
+ * 内存缓存管理器
+ * - 支持 TTL（生存时间）
+ * - 自动清理过期缓存
+ * - 默认缓存时间 5 分钟
+ */
+const DEFAULT_TTL = 5 * 60 * 1000; // 5 分钟（毫秒）
+const CLEANUP_INTERVAL = 60 * 1000; // 每分钟清理一次过期缓存
+
+// 使用 Map 存储缓存数据
+const cache = new Map();
+
+// 缓存项结构: { value, expiresAt }
+
+/**
+ * 获取缓存
+ * @param {string} key - 缓存键
+ * @returns {any|null} - 缓存值，如果不存在或已过期返回 null
+ */
+function getCache(key) {
+  const item = cache.get(key);
+  if (!item) return null;
+  
+  // 检查是否过期
+  if (Date.now() > item.expiresAt) {
+    cache.delete(key);
+    return null;
+  }
+  
+  return item.value;
+}
+
+/**
+ * 设置缓存
+ * @param {string} key - 缓存键
+ * @param {any} value - 缓存值
+ * @param {number} ttlSeconds - 生存时间（秒），默认 300 秒（5 分钟）
+ */
+function setCache(key, value, ttlSeconds = 300) {
+  const expiresAt = Date.now() + (ttlSeconds * 1000);
+  cache.set(key, { value, expiresAt });
+}
+
+/**
+ * 清除指定缓存
+ * @param {string} key - 缓存键
+ * @returns {boolean} - 是否成功删除
+ */
+function clearCache(key) {
+  return cache.delete(key);
+}
+
+/**
+ * 清除所有缓存
+ */
+function clearAllCache() {
+  cache.clear();
+}
+
+/**
+ * 清理过期缓存
+ */
+function cleanupExpiredCache() {
+  const now = Date.now();
+  let cleaned = 0;
+  
+  for (const [key, item] of cache.entries()) {
+    if (now > item.expiresAt) {
+      cache.delete(key);
+      cleaned++;
+    }
+  }
+  
+  if (cleaned > 0) {
+    console.log(`🧹 Cache cleanup: removed ${cleaned} expired items`);
+  }
+}
+
+// 启动定时清理任务
+const cleanupTimer = setInterval(cleanupExpiredCache, CLEANUP_INTERVAL);
+
+// 防止定时器阻止进程退出
+cleanupTimer.unref();
+
+/**
+ * 缓存装饰器 - 包装异步函数，自动缓存结果
+ * @param {string} key - 缓存键
+ * @param {Function} fn - 要缓存的异步函数
+ * @param {number} ttlSeconds - 缓存时间（秒）
+ * @returns {Promise<any>} - 缓存值或函数执行结果
+ */
+async function withCache(key, fn, ttlSeconds = 300) {
+  const cached = getCache(key);
+  if (cached !== null) {
+    return cached;
+  }
+  
+  const result = await fn();
+  setCache(key, result, ttlSeconds);
+  return result;
+}
+
+/**
+ * 使缓存失效 - 清除指定键并返回新值
+ * @param {string} key - 缓存键
+ * @param {Function} fn - 重新获取数据的异步函数
+ * @param {number} ttlSeconds - 缓存时间（秒）
+ * @returns {Promise<any>} - 新的函数执行结果
+ */
+async function invalidateCache(key, fn, ttlSeconds = 300) {
+  clearCache(key);
+  const result = await fn();
+  setCache(key, result, ttlSeconds);
+  return result;
+}
+
+// 导出缓存管理函数（供外部使用或测试）
+module.exports.cacheManager = {
+  getCache,
+  setCache,
+  clearCache,
+  clearAllCache,
+  withCache,
+  invalidateCache,
+  getStats: () => ({
+    size: cache.size,
+    keys: Array.from(cache.keys())
+  })
+};
+
+// ==================== STORAGE HELPERS ====================
+
 // Storage helpers
 const POSTS_KEY = 'blog:posts';
 const USERS_KEY = 'blog:users';
@@ -522,6 +656,68 @@ app.get('/api/posts/rank', async (req, res) => {
   }
 });
 
+// Get posts by date (simplified format) - MUST be before /api/posts/:id
+app.get('/api/posts/by-date', async (req, res) => {
+  try {
+    const { year, month, day } = req.query;
+    const posts = await getPosts();
+    const categories = await getCategories();
+    
+    // 筛选文章
+    const filteredPosts = posts.filter(post => {
+      // 只返回已发布的文章
+      if (post.status === 'draft') return false;
+      
+      const date = new Date(post.createdAt);
+      const postYear = date.getFullYear();
+      const postMonth = date.getMonth() + 1;
+      const postDay = date.getDate();
+      
+      if (year && parseInt(year) !== postYear) return false;
+      if (month && parseInt(month) !== postMonth) return false;
+      if (day && parseInt(day) !== postDay) return false;
+      
+      return true;
+    });
+    
+    // 按时间倒序排列
+    filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // 简化输出格式
+    const result = filteredPosts.map(post => {
+      const postWithCat = {
+        id: post.id,
+        title: post.title,
+        author: post.author,
+        createdAt: post.createdAt,
+        views: post.views || 0,
+        likes: post.likes || 0,
+        tags: post.tags || []
+      };
+      
+      // 添加分类信息
+      if (post.categoryId) {
+        const category = categories.find(c => c.id === post.categoryId);
+        if (category) {
+          postWithCat.category = category;
+        }
+      }
+      
+      return postWithCat;
+    });
+    
+    res.json({
+      year: year ? parseInt(year) : null,
+      month: month ? parseInt(month) : null,
+      day: day ? parseInt(day) : null,
+      total: result.length,
+      posts: result
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get single post (with view count) - MUST be after /api/posts/search and /api/posts/rank
 app.get('/api/posts/:id', async (req, res) => {
   try {
@@ -784,21 +980,31 @@ app.get('/api/stats', async (req, res) => {
   }
 });
 
-// Get archive data
+// Get archive data (with optional date filtering)
 app.get('/api/archive', async (req, res) => {
   try {
+    const { year, month, day } = req.query;
     const posts = await getPosts();
     const archive = {};
     
     posts.forEach(post => {
       const date = new Date(post.createdAt);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const postYear = date.getFullYear();
+      const postMonth = String(date.getMonth() + 1).padStart(2, '0');
+      const postDay = String(date.getDate()).padStart(2, '0');
       
-      if (!archive[year]) archive[year] = {};
-      if (!archive[year][month]) archive[year][month] = [];
+      // 筛选逻辑
+      if (year && parseInt(year) !== postYear) return;
+      if (month && parseInt(month) !== parseInt(postMonth)) return;
+      if (day && parseInt(day) !== parseInt(postDay)) return;
       
-      archive[year][month].push({
+      const yearKey = String(postYear);
+      const monthKey = postMonth;
+      
+      if (!archive[yearKey]) archive[yearKey] = {};
+      if (!archive[yearKey][monthKey]) archive[yearKey][monthKey] = [];
+      
+      archive[yearKey][monthKey].push({
         id: post.id,
         title: post.title,
         createdAt: post.createdAt
@@ -855,8 +1061,42 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     storage: useRedis ? 'redis' : 'memory',
+    cache: {
+      enabled: true,
+      size: cache.size,
+      defaultTTL: DEFAULT_TTL / 1000 + 's'
+    },
     timestamp: new Date().toISOString() 
   });
+});
+
+// Cache status API
+app.get('/api/cache/status', (req, res) => {
+  const stats = [];
+  for (const [key, item] of cache.entries()) {
+    stats.push({
+      key,
+      expiresAt: new Date(item.expiresAt).toISOString(),
+      ttlRemaining: Math.max(0, Math.round((item.expiresAt - Date.now()) / 1000)) + 's'
+    });
+  }
+  res.json({
+    size: cache.size,
+    defaultTTL: DEFAULT_TTL / 1000 + 's',
+    items: stats
+  });
+});
+
+// Clear cache API (admin only)
+app.delete('/api/cache', requireAdmin, (req, res) => {
+  const { key } = req.query;
+  if (key) {
+    const deleted = clearCache(key);
+    res.json({ message: deleted ? `Cache key '${key}' cleared` : `Cache key '${key}' not found` });
+  } else {
+    clearAllCache();
+    res.json({ message: 'All cache cleared' });
+  }
 });
 
 // Error handling

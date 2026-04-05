@@ -11,6 +11,7 @@ function Sidebar({ user, setUser, isOpen, setIsOpen }) {
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const [archive, setArchive] = useState([])
+  const [archiveData, setArchiveData] = useState({})
   const [rankPosts, setRankPosts] = useState([])
   const [rankLoading, setRankLoading] = useState(false)
   const [rankError, setRankError] = useState(null)
@@ -24,6 +25,8 @@ function Sidebar({ user, setUser, isOpen, setIsOpen }) {
     try {
       const res = await axios.get('/archive')
       const data = res.data
+      // 保存原始数据供 Calendar 使用
+      setArchiveData(data)
       // 转换为 [{year, month, count}] 并按日期倒序排列
       const list = []
       Object.keys(data)
@@ -122,7 +125,7 @@ function Sidebar({ user, setUser, isOpen, setIsOpen }) {
           <Calendar onDateClick={(year, month, day) => {
             navigate(`/archive?year=${year}&month=${month}&day=${day}`)
             setIsOpen(false)
-          }} />
+          }} archiveData={archiveData} />
 
           {/* 分隔线 */}
           <div className="sidebar-divider" />
