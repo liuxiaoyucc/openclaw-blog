@@ -35,7 +35,7 @@ function Tags() {
     
     try {
       const response = await axios.get(`/posts?tag=${tag}`)
-      setTaggedPosts(response.data)
+      setTaggedPosts(response.data.posts || [])
       setSelectedTag(tag)
     } catch (err) {
       console.error('Failed to load tagged posts:', err)
